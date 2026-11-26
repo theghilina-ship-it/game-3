@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Bom Waktu: Estafet Masa Depan — XII.1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f3fbe9;
+  --surface:#ffffff;
+  --ink:#17332a;
+  --mute:#4f6a5c;
+  --line:#17332a;
+  --forest:#0f4a37;
+  --leaf:#2fb36b;
+  --sun:#ffc933;
+  --sky:#12a7b0;
+  --coral:#ff6f61;
+  --lilac:#b79cff;
+  --sh:4px 4px 0 #17332a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0; background:var(--bg);
+  background-image:radial-gradient(color-mix(in srgb,var(--leaf) 26%,transparent) 1.6px,transparent 1.6px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font:400 16px/1.5 "Source Sans 3",system-ui,sans-serif;
+  min-height:100dvh; display:flex; flex-direction:column;
+  transition:background-color .25s;
+}
+body.panic{
+  background-color:#ffe3df;
+  background-image:radial-gradient(rgba(255,111,97,0.35) 1.8px,transparent 1.8px);
+}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.15}
+.wrap{max-width:560px;width:100%;margin:0 auto;padding:16px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.card{
+  background:var(--surface); border:2px solid var(--line);
+  border-radius:24px; padding:22px; box-shadow:var(--sh);
+}
+.badge{
+  background:var(--sun); color:#17332a; border:2px solid var(--line);
+  border-radius:99px; padding:3px 12px; font:700 13px "Bricolage Grotesque",sans-serif;
+  box-shadow:2px 2px 0 var(--line); display:inline-block; margin-bottom:10px;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--leaf); color:#fff; border:2px solid var(--line);
+  border-radius:16px; padding:13px 20px; font:700 17px "Bricolage Grotesque",sans-serif;
+  box-shadow:3px 3px 0 var(--line); cursor:pointer; width:100%; margin-top:10px;
+  transition:transform .08s, box-shadow .08s;
+}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
+.btn.sun{background:var(--sun);color:#17332a}
+.btn.coral{background:var(--coral);color:#fff}
+.btn.sky{background:var(--sky);color:#fff}
+.btn.sm{padding:8px 12px;font-size:14px;width:auto;margin-top:0}
+
+.player-row{
+  display:flex; gap:8px; margin-bottom:8px; align-items:center;
+}
+.player-row input{
+  flex:1; padding:10px 14px; border:2px solid var(--line); border-radius:12px;
+  font:600 16px "Source Sans 3",sans-serif; background:var(--bg); color:var(--ink);
+}
+.player-row input:focus{outline:3px solid var(--sun)}
+
+/* Bomb Animation */
+.bomb-box{
+  text-align:center; margin:6px 0 14px; position:relative;
+}
+.bomb-icon{
+  font-size:68px; display:inline-block;
+  animation:pulseBomb 0.8s infinite alternate ease-in-out;
+}
+.bomb-icon.fast{animation-duration:0.25s}
+@keyframes pulseBomb{
+  from{transform:scale(0.94) rotate(-4deg)}
+  to{transform:scale(1.12) rotate(4deg)}
+}
+.holder-banner{
+  background:var(--sun);
