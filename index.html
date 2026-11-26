@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Bom Waktu: Estafet Masa Depan — XII.1</title>
+<title>Bom Waktu 3 Pemain: Estafet Masa Depan — XII.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
 :root{
@@ -55,14 +55,16 @@ h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-he
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
 .btn.sun{background:var(--sun);color:#17332a}
 .btn.coral{background:var(--coral);color:#fff}
-.btn.sky{background:var(--sky);color:#fff}
-.btn.sm{padding:8px 12px;font-size:14px;width:auto;margin-top:0}
 
 .player-row{
-  display:flex; gap:8px; margin-bottom:8px; align-items:center;
+  display:flex; flex-direction:column; margin-bottom:10px;
+}
+.player-row label{
+  font:700 14px "Bricolage Grotesque",sans-serif;
+  color:var(--forest); margin-bottom:4px;
 }
 .player-row input{
-  flex:1; padding:10px 14px; border:2px solid var(--line); border-radius:12px;
+  width:100%; padding:10px 14px; border:2px solid var(--line); border-radius:12px;
   font:600 16px "Source Sans 3",sans-serif; background:var(--bg); color:var(--ink);
 }
 .player-row input:focus{outline:3px solid var(--sun)}
@@ -81,4 +83,319 @@ h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-he
   to{transform:scale(1.12) rotate(4deg)}
 }
 .holder-banner{
-  background:var(--sun);
+  background:var(--sun); border:2px solid var(--line); border-radius:16px;
+  padding:10px 14px; text-align:center; font:800 20px "Bricolage Grotesque",sans-serif;
+  box-shadow:3px 3px 0 var(--line); margin-bottom:14px;
+}
+.q-box{
+  background:var(--bg); border:2px solid var(--line); border-radius:18px;
+  padding:16px; font:700 18px "Bricolage Grotesque",sans-serif;
+  color:var(--forest); text-align:center; min-height:92px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+}
+.ans-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.ans-btn{
+  padding:16px 12px; font-size:18px; margin-top:0;
+}
+.status-bar{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px;
+}
+.pill{
+  padding:6px 8px; border-radius:12px; border:2px solid var(--line);
+  font:700 13px "Bricolage Grotesque",sans-serif; background:var(--surface);
+  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pill.active{background:var(--sun);transform:scale(1.05)}
+.pill.out{opacity:0.4;text-decoration:line-through;background:#ddd}
+
+.shake{animation:shakeAnim .35s ease-in-out}
+@keyframes shakeAnim{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  50%{transform:translateX(8px)}
+  75%{transform:translateX(-6px)}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- SCREEN 1: SETUP 3 PEMAIN -->
+  <section id="scrLobby" class="card">
+    <span class="badge">Party Game · 3 Pengunjung 💣</span>
+    <h1 style="font-size:28px;color:var(--forest);margin-bottom:6px">Bom Waktu: Estafet 3 Orang!</h1>
+    <p style="color:var(--mute);margin:0 0 14px;font-size:15px">Isi nama <b>3 pengunjung</b>! Jawab benar untuk melempar bom ke teman sebelah sebelum meledak. Salah jawab = waktu bom berkurang 2,5 detik!</p>
+    
+    <form id="lobbyForm">
+      <div class="player-row">
+        <label for="p1Input">Pengunjung 1:</label>
+        <input id="p1Input" type="text" maxlength="14" placeholder="Nama Pengunjung 1..." required autocomplete="off">
+      </div>
+      <div class="player-row">
+        <label for="p2Input">Pengunjung 2:</label>
+        <input id="p2Input" type="text" maxlength="14" placeholder="Nama Pengunjung 2..." required autocomplete="off">
+      </div>
+      <div class="player-row">
+        <label for="p3Input">Pengunjung 3:</label>
+        <input id="p3Input" type="text" maxlength="14" placeholder="Nama Pengunjung 3..." required autocomplete="off">
+      </div>
+      <button type="submit" class="btn">Mulai Estafet Bom! 🔥</button>
+    </form>
+  </section>
+
+  <!-- SCREEN 2: GAMEPLAY -->
+  <section id="scrGame" class="card hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--mute)">
+      <span id="roundTag">RONDE 1 (3 Pemain)</span>
+      <span id="streakTag">🔥 Lemparan: 0</span>
+    </div>
+
+    <div class="bomb-box">
+      <div class="bomb-icon" id="bombIcon">💣</div>
+      <div id="penaltyMsg" style="height:20px;font-weight:700;font-size:14px;color:var(--coral)"></div>
+    </div>
+
+    <div class="holder-banner" id="holderBanner">
+      Giliran: Pengunjung 1!
+    </div>
+
+    <div class="q-box" id="questionText">
+      Memuat pertanyaan...
+    </div>
+
+    <div class="ans-grid">
+      <button id="btnTrue" type="button" class="btn ans-btn">✅ FAKTA / BENAR</button>
+      <button id="btnFalse" type="button" class="btn coral ans-btn">❌ MITOS / SALAH</button>
+    </div>
+
+    <div class="status-bar" id="playerPills"></div>
+  </section>
+
+  <!-- SCREEN 3: BOM MELEDAK (ELIMINASI RONDE 1) -->
+  <section id="scrBoom" class="card hidden" style="text-align:center">
+    <div style="font-size:64px;margin-bottom:4px">💥💣</div>
+    <h2 style="font-size:28px;color:var(--coral)" id="boomTitle">DUAAR! Kena Bom!</h2>
+    <p style="color:var(--mute);margin:8px 0 12px" id="boomSub"></p>
+    <div style="background:var(--bg);border:2px solid var(--line);border-radius:16px;padding:14px;text-align:left;font-size:15px;margin-bottom:14px" id="boomFact"></div>
+    <button id="nextRoundBtn" type="button" class="btn sun">Lanjut Final 2 Orang ➡️</button>
+  </section>
+
+  <!-- SCREEN 4: JUARA AKHIR -->
+  <section id="scrWin" class="card hidden" style="text-align:center">
+    <div style="font-size:64px;margin-bottom:4px">👑🎉</div>
+    <h2 style="font-size:30px;color:var(--forest)" id="winTitle">Juara Bertahan!</h2>
+    <p style="color:var(--mute);margin:8px 0 16px;font-size:16px" id="winSub"></p>
+    <button id="restartAllBtn" type="button" class="btn">Ganti 3 Pengunjung Berikutnya 🔄</button>
+  </section>
+</div>
+
+<script>
+// Bank Soal Fakta vs Mitos dari 6 LKPD Kelompok 4 XII.1
+const QUESTIONS = [
+  { q: "Jurusan dengan daya tampung paling banyak otomatis peluang lolos SNBT-nya paling besar.", a: false, exp: "Mitos! Peluang tergantung rasio daya tampung dibagi peminat. Kursi banyak tapi peminat membludak tetap sangat ketat." },
+  { q: "Rasio keketatan di bawah 5% termasuk kategori persaingan sangat ketat.", a: true, exp: "Fakta! Seperti STEI-K ITB (3,78%) dan Teknik Elektro Unpad (4,36%) yang semuanya di bawah 5%." },
+  { q: "Menyiapkan jurusan cadangan (Plan B) penting meskipun nilai try out sudah tinggi.", a: true, exp: "Fakta! Peluang hanyalah gambaran persaingan, bukan jaminan lolos." },
+  { q: "Sertifikat BNSP dari pelatihan BLK diakui secara nasional sebagai bukti kompetensi kerja.", a: true, exp: "Fakta! Sertifikat BNSP menjadi pembeda nyata bagi pelamar kerja maupun wirausaha." },
+  { q: "Di bengkel las BLK, sarung tangan dan kacamata pelindung boleh dilepas asal sudah mahir.", a: false, exp: "Mitos! Prosedur K3 dan pemakaian APD wajib dipatuhi siapa pun demi keselamatan kerja." },
+  { q: "Sehat jasmani dan rohani termasuk syarat resmi untuk mengikuti pelatihan di UPTD BLK.", a: true, exp: "Fakta! Fisik yang kuat dan mental yang stabil adalah modal bertahan di dunia kerja." },
+  { q: "Menyalin jawaban dari AI lalu memparafrasenya tanpa sitasi tetap termasuk plagiarisme.", a: true, exp: "Fakta! Dalam sidang etik akademik, menggunakan hasil AI tanpa sitasi tetap melanggar integritas." },
+  { q: "Skor similarity Turnitin sebesar 15% hingga 20% dengan sitasi lengkap masih tergolong wajar.", a: true, exp: "Fakta! Batas 15–20% wajar karena adanya kutipan bersitasi dan istilah baku." },
+  { q: "Jika syarat minimal kehadiran kuliah 75% dari 16 pertemuan, maka hadir 10 kali sudah cukup untuk UAS.", a: false, exp: "Mitos! 75% dari 16 pertemuan adalah minimal 12 kali kehadiran." },
+  { q: "Begadang tiap malam menjelang UTBK efektif meningkatkan daya ingat jangka panjang.", a: false, exp: "Mitos! Tidur cukup dan pola hidup sehat jauh lebih efektif menjaga fokus belajar." },
+  { q: "Memilih jurusan kuliah sebaiknya berada di irisan minat, bakat, dan prospek kerja.", a: true, exp: "Fakta! Kombinasi ketiganya membuat kuliah lebih konsisten dan siap menghadapi dunia karier." },
+  { q: "Jasa joki tugas hanya merugikan dosen, tidak berdampak pada kemampuan mahasiswa di masa depan.", a: false, exp: "Mitos! Orang yang memakai joki tidak memahami karyanya sendiri dan akan kesulitan saat diuji di dunia kerja." }
+];
+
+// Audio Beep Synthesizer
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq, duration, type = "sine") {
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+// Game State untuk 3 Pengunjung
+let game = {
+  players: [], // 3 objek { name, alive }
+  turnIdx: 0,
+  round: 1,
+  passes: 0,
+  bombTime: 0,
+  tickTimer: null,
+  usedQ: [],
+  currentQ: null,
+  locked: false
+};
+
+document.getElementById("lobbyForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const n1 = document.getElementById("p1Input").value.trim() || "Pengunjung 1";
+  const n2 = document.getElementById("p2Input").value.trim() || "Pengunjung 2";
+  const n3 = document.getElementById("p3Input").value.trim() || "Pengunjung 3";
+
+  game.players = [
+    { name: n1, alive: true },
+    { name: n2, alive: true },
+    { name: n3, alive: true }
+  ];
+  game.round = 1;
+  game.turnIdx = 0;
+  game.usedQ = [];
+  startRound();
+});
+
+function startRound() {
+  game.passes = 0;
+  // Waktu bom acak antara 12 sampai 18 detik
+  game.bombTime = 12 + Math.random() * 6;
+  game.locked = false;
+
+  while (!game.players[game.turnIdx].alive) {
+    game.turnIdx = (game.turnIdx + 1) % 3;
+  }
+
+  document.body.classList.remove("panic");
+  document.getElementById("bombIcon").classList.remove("fast");
+  document.getElementById("penaltyMsg").textContent = "";
+  document.getElementById("scrLobby").classList.add("hidden");
+  document.getElementById("scrBoom").classList.add("hidden");
+  document.getElementById("scrWin").classList.add("hidden");
+  document.getElementById("scrGame").classList.remove("hidden");
+
+  const aliveCount = game.players.filter(p => p.alive).length;
+  document.getElementById("roundTag").textContent = aliveCount === 3 ? "RONDE 1 (3 Pemain)" : "FINAL (2 Pemain)";
+
+  nextQuestion();
+  updateGameUI();
+
+  if (game.tickTimer) clearInterval(game.tickTimer);
+  game.tickTimer = setInterval(() => {
+    game.bombTime -= 0.2;
+    
+    if (game.bombTime <= 4.5) {
+      document.body.classList.add("panic");
+      document.getElementById("bombIcon").classList.add("fast");
+      if (Math.round(game.bombTime * 10) % 4 === 0) playTone(880, 0.06, "square");
+    } else {
+      if (Math.round(game.bombTime * 10) % 10 === 0) playTone(520, 0.05, "sine");
+    }
+
+    if (game.bombTime <= 0) {
+      explodeBomb();
+    }
+  }, 200);
+}
+
+function nextQuestion() {
+  if (game.usedQ.length >= QUESTIONS.length) game.usedQ = [];
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * QUESTIONS.length);
+  } while (game.usedQ.includes(idx));
+  game.usedQ.push(idx);
+  game.currentQ = QUESTIONS[idx];
+  document.getElementById("questionText").textContent = game.currentQ.q;
+}
+
+function updateGameUI() {
+  const activePlayer = game.players[game.turnIdx];
+  document.getElementById("holderBanner").textContent = `💣 Pegang Bom: ${activePlayer.name}`;
+  document.getElementById("streakTag").textContent = `🔥 Lemparan: ${game.passes}`;
+
+  document.getElementById("playerPills").innerHTML = game.players.map((p, i) => `
+    <div class="pill ${i === game.turnIdx ? 'active' : ''} ${!p.alive ? 'out' : ''}">
+      ${p.name}
+    </div>
+  `).join("");
+}
+
+function answerQuestion(userAns) {
+  if (game.locked) return;
+  const penaltyEl = document.getElementById("penaltyMsg");
+
+  if (userAns === game.currentQ.a) {
+    playTone(660, 0.12, "triangle");
+    penaltyEl.textContent = "✅ Benar! Lempar ke sebelah!";
+    penaltyEl.style.color = "var(--leaf)";
+    game.passes++;
+
+    do {
+      game.turnIdx = (game.turnIdx + 1) % 3;
+    } while (!game.players[game.turnIdx].alive);
+
+    nextQuestion();
+    updateGameUI();
+  } else {
+    playTone(180, 0.25, "sawtooth");
+    game.bombTime -= 2.5;
+    penaltyEl.textContent = "❌ Salah! Waktu bom -2,5 detik!";
+    penaltyEl.style.color = "var(--coral)";
+    
+    const card = document.getElementById("scrGame");
+    card.classList.remove("shake");
+    void card.offsetWidth;
+    card.classList.add("shake");
+
+    if (game.bombTime <= 0) {
+      explodeBomb();
+    } else {
+      nextQuestion();
+    }
+  }
+}
+
+function explodeBomb() {
+  game.locked = true;
+  clearInterval(game.tickTimer);
+  playTone(110, 0.6, "sawtooth");
+  document.body.classList.remove("panic");
+
+  const victim = game.players[game.turnIdx];
+  victim.alive = false;
+
+  const survivors = game.players.filter(p => p.alive);
+  document.getElementById("scrGame").classList.add("hidden");
+
+  if (survivors.length <= 1) {
+    const champ = survivors[0] ? survivors[0].name : victim.name;
+    document.getElementById("scrWin").classList.remove("hidden");
+    document.getElementById("winTitle").textContent = `👑 ${champ} Pemenangnya!`;
+    document.getElementById("winSub").textContent = `Selamat! Kamu berhasil mengalahkan 2 pengunjung lainnya tanpa terkena ledakan bom waktu.`;
+  } else {
+    document.getElementById("scrBoom").classList.remove("hidden");
+    document.getElementById("boomTitle").textContent = `💥 DUAAR! ${victim.name} Kena Bom!`;
+    document.getElementById("boomSub").textContent = `${victim.name} gugur di Ronde 1. Tersisa ${survivors[0].name} vs ${survivors[1].name} di babak Final!`;
+    document.getElementById("boomFact").innerHTML = `<b>Penjelasan Soal Terakhir:</b><br>${game.currentQ.exp}`;
+  }
+}
+
+document.getElementById("btnTrue").addEventListener("click", () => answerQuestion(true));
+document.getElementById("btnFalse").addEventListener("click", () => answerQuestion(false));
+
+document.getElementById("nextRoundBtn").addEventListener("click", () => {
+  game.round++;
+  startRound();
+});
+
+document.getElementById("restartAllBtn").addEventListener("click", () => {
+  document.getElementById("p1Input").value = "";
+  document.getElementById("p2Input").value = "";
+  document.getElementById("p3Input").value = "";
+  document.getElementById("scrWin").classList.add("hidden");
+  document.getElementById("scrLobby").classList.remove("hidden");
+  document.getElementById("p1Input").focus();
+});
+</script>
+</body>
+</html>
